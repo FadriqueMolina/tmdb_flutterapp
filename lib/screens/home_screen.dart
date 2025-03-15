@@ -14,7 +14,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<MovieProvider>(context, listen: false).fetchMovies();
+    Future.microtask(() {
+      if (mounted) {
+        final movieProvider = Provider.of<MovieProvider>(
+          context,
+          listen: false,
+        );
+        movieProvider.fetchMovies();
+      }
+    });
   }
 
   @override
@@ -27,6 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
             return const Center(
               child: CircularProgressIndicator(color: Colors.black),
             );
+          } else if (movieProvider.movies.isEmpty) {
+            return const Center(child: Text('No hay películas disponibles'));
           } else {
             return GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
